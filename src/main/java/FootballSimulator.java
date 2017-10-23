@@ -1,52 +1,51 @@
 import java.util.Random;
 
 public class FootballSimulator implements SportSimulator{
-    private int gameLength;
+    private final int gameLength = 90;
+    private final int extraTimeLength = 120;
+    private GameType gameType;
     private Player teamOne;
     private Player teamTwo;
     private Random random;
-    private GameState gameState;
 
-    public FootballSimulator(Player teamOne, Player teamTwo){
+    public FootballSimulator(Player teamOne, Player teamTwo, GameType gameType){
         random = new Random();
-        gameState = new GameState();
         this.teamOne = teamOne;
         this.teamTwo = teamTwo;
-        gameLength = 90;
+        this.gameType = gameType;
     }
 
     @Override
     public void startSim() {
-        for(int i = 0; i < gameLength; i++){
-            nextStep();
+        GameState gameState = new GameState();
+        while (gameState.getCount() < gameLength){
+            nextStep(gameState);
         }
+        if (teamOne.getScore() == teamTwo.getScore() && gameType == GameType.CUP) {
+            while (gameState.getCount() < extraTimeLength) {
+                nextStep(gameState);
+            }
+        }
+        System.out.println(printState());
     }
 
     @Override
-    public void nextStep() {
-        if (genRandomNum()< 3) {
-            incrementScore(teamOne);
-            System.out.println(teamOne.getPlayerName() + " scored!");
-        }
-
-        if (genRandomNum()< 3) {
-            incrementScore(teamTwo);
-            System.out.println(teamTwo.getPlayerName() + " scored!");
-        }
+    public void nextStep(GameState gameState) {
+        gameState.setCount(gameState.getCount() + 1);
+        doesTeamScore(teamOne);
+        doesTeamScore(teamTwo);
     }
 
     @Override
     public String printState() {
-       return teamOne.getPlayerName() + "'s score: " + teamOne.getScore() + "\n"
-            + teamTwo.getPlayerName() + "'s score: " + teamTwo.getScore();
+        return teamOne.getPlayerName() + "'s score: " + teamOne.getScore() + "\n"
+                + teamTwo.getPlayerName() + "'s score: " + teamTwo.getScore();
     }
 
-    public int getGameLength() {
-        return gameLength;
-    }
-
-    public void setGameLength(int gameLength) {
-        this.gameLength = gameLength;
+    private void doesTeamScore(Player team) {
+        if (genRandomNum() < 3) {
+            incrementScore(team);
+        }
     }
 
     private int genRandomNum(){
@@ -57,7 +56,11 @@ public class FootballSimulator implements SportSimulator{
         team.setScore(team.getScore()+1);
     }
 
-    public GameState getGameState() {
-        return gameState;
+    public static void main(String [] args){
+        Player playerOne = new Player("Leamington Spa", 50);
+        Player playerTwo = new Player("Birmingham City", 50);
+        FootballSimulator simulator = new FootballSimulator(playerOne, playerTwo, GameType.CUP);
+        simulator.startSim();
     }
+
 }

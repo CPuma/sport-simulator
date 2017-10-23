@@ -2,7 +2,7 @@ public interface SportSimulator{
 
     void startSim();
 
-    void nextStep();
+    void nextStep(GameState gameState);
 
     String printState();
 }
